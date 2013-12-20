@@ -4,9 +4,7 @@ from __future__ import print_function
 import subprocess, time, Image, socket, imp, os
 import RPi.GPIO as GPIO
 from random import randint
-from Adafruit_Thermal import Adafruit_Thermal
-curr_dir = os.path.dirname(os.path.realpath(__file__))
-Adafruit_Thermal = imp.load_source('Adafruit_Thermal', curr_dir + '/vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
+Adafruit_Thermal = imp.load_source('Adafruit_Thermal', 'vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
 
 ledPin       = 18
 buttonPin    = 23
@@ -24,7 +22,7 @@ printer      = Adafruit_Thermal.Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=
 # Called when button1 (au milieu) is briefly tapped.  Imprime les Tres tres court version 3 minutes.
 def tap():
   GPIO.output(ledPin, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('gfx/logonb.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.png'), True)
   printer.feed(2)
   a=randint(1,10)
   s=str(a)
@@ -42,7 +40,7 @@ def tap():
   f.close()
   time.sleep(3)
   printer.feed(2)
-  printer.printImage(Image.open('gfx/logonb.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.png'), True)
   printer.feed(2)
   printer.println("pour plus de lecture RDV sur    http://short-edition.com/")
   printer.feed(4)
@@ -51,7 +49,7 @@ def tap():
 # Called when button2 (gauche) is briefly tapped.  Imprime les Tres tres court version 1 minute.
 def tap2():
   GPIO.output(ledPin2, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('gfx/logonb.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.png'), True)
   printer.feed(2)
   a=randint(1,7)
   s=str(a)
@@ -67,7 +65,7 @@ def tap2():
     time.sleep(1)
   f.close()
   printer.feed(2)
-  printer.printImage(Image.open('gfx/logonb.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.png'), True)
   printer.feed(2)
   printer.println("pour plus de lecture RDV sur    http://short-edition.com/")
   printer.feed(4)
@@ -76,7 +74,7 @@ def tap2():
 # Called when button3 is briefly tapped.  Imprime les poemes.
 def tap3():
   GPIO.output(ledPin3, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('gfx/logonb.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.png'), True)
   printer.feed(2)
   a=randint(1,6)
   s=str(a)
@@ -93,7 +91,7 @@ def tap3():
   f.close()
   printer.feed(2)
   time.sleep(2)
-  printer.printImage(Image.open('gfx/logonb.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.png'), True)
   printer.feed(2)
   printer.println("pour plus de lecture RDV sur    http://short-edition.com/")
   printer.feed(4)
@@ -132,7 +130,7 @@ GPIO.output(ledPin3, GPIO.HIGH)
 
 # Processor load is heavy at startup; wait a moment to avoid
 # stalling during greeting.
-time.sleep(30)
+# time.sleep(30)
 
 # Poll initial button state and time
 prevButtonState = GPIO.input(buttonPin)
