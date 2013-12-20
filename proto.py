@@ -74,7 +74,8 @@ def hold():
   GPIO.output(ledPin, GPIO.HIGH)
   GPIO.output(ledPin2, GPIO.HIGH)
   GPIO.output(ledPin3, GPIO.HIGH)
-  printer.println("Ok, laisse moi 30 secondes pour m'éteindre...")
+  printer.println("Ok !")
+  printer.println("Laisse moi 30sec pour m'éteindre")
   printer.feed(3)
   subprocess.call("sync")
   subprocess.call(["shutdown", "-h", "now"])
@@ -148,8 +149,6 @@ while(True):
       else:                         
         tapEnable  = True           
         holdEnable = True
-
-
 
   # Has button2 state changed?
   if buttonState2 != prevButtonState2:
