@@ -1,24 +1,12 @@
 #!/usr/bin/python
 
-# Main script for Adafruit Internet of Things Printer 2.  Monitors button
-# for taps and holds, performs periodic actions (Twitter polling by default)
-# and daily actions (Sudoku and weather by default).
-# Written by Adafruit Industries.  MIT license.
-#
-# MUST BE RUN AS ROOT (due to GPIO access)
-#
-# Required software includes Adafruit_Thermal, Python Imaging and PySerial
-# libraries. Other libraries used are part of stock Python install.
-#
-# Resources:
-# http://www.adafruit.com/products/597 Mini Thermal Receipt Printer
-# http://www.adafruit.com/products/600 Printer starter pack
-
 from __future__ import print_function
+import subprocess, time, Image, socket, imp, os
 import RPi.GPIO as GPIO
-import subprocess, time, Image, socket
-from Adafruit_Thermal import *
 from random import randint
+from Adafruit_Thermal import Adafruit_Thermal
+curr_dir = os.path.dirname(os.path.realpath(__file__))
+Adafruit_Thermal = imp.load_source('Adafruit_Thermal', curr_dir + '/vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
 
 ledPin       = 18
 buttonPin    = 23
@@ -30,7 +18,7 @@ holdTime     = 2     # Duration for button hold (shutdown)
 tapTime      = 0.01  # Debounce time for button taps
 nextInterval = 0.0   # Time of next recurring operation
 lastId       = '1'   # State information passed to/from interval script
-printer      = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
+printer      = Adafruit_Thermal.Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
 
 
 # Called when button1 (au milieu) is briefly tapped.  Imprime les Tres tres court version 3 minutes.
