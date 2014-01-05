@@ -25,19 +25,19 @@ class SimulatorDevice(AbstractDevice):
         while True:
             c = self.read_char()
             if c in self.key_map:
-                print "Btn:", self.key_map[c]
+                cprint("Btn: " + self.key_map[c], 'yellow')
                 return self.key_map[c]
             elif ord(c) == 3:
                 raise Exception('User interrupted')
 
-    def print_text(self, text):
-        cprint(text, 'yellow')
+    def println(self, line=''):
+        print '| {:<32} |'.format(line[:32])
 
     def print_image(self, image):
-        print "Image:", image
+        self.println('{:^32}'.format('[' + str(image) + ']'))
 
     def led_on(self, led):
-        print "Led:", led.upper()
+        cprint("Led: " + led.upper(), 'yellow')
 
     def led_off(self, led):
-        print "Led:", led.lower()
+        cprint("Led: " + led.lower(), 'yellow')

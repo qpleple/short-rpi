@@ -135,6 +135,9 @@ class PhysicalDevice(AbstractDevice):
         print "LED", led, "off"
         GPIO.output(self.leds[led], GPIO.HIGH)
 
+    def println(self, line=''):
+        print "println() not implemented"
+
     def print_text(self, txt):
         print "print_text() not implemented"
 
