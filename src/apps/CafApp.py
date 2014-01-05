@@ -29,7 +29,7 @@ class CafApp(AbstractApp):
         subprocess.call("sync")
         subprocess.call(["shutdown", "-h", "now"])
 
-    def run(self):
+    def main_loop(self):
         while True:
             action = self.device.read()
             if action == 'left':
@@ -47,5 +47,13 @@ class CafApp(AbstractApp):
             elif action in ['LEFT', 'MIDDLE', 'RIGHT']:
                 self.shutdown()
 
+    def run(self):
+        try:
+            self.main_loop()
+        except Exception, e:
+            self.device.println("Error:")
+            self.device.print_text(str(e))
 
-    
+            self.device.feed(1)
+            self.device.println("I'm done.")
+            self.device.feed(3)
