@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from __future__ import print_function
 import subprocess, time, Image, socket, imp, os, sys
@@ -126,7 +127,7 @@ holdEnable2     = False
 holdEnable3     = False
 
 
-def main_loop():
+try:
   print("Entering main loop")
 
   # Main loop
@@ -209,8 +210,6 @@ def main_loop():
       GPIO.output(ledPin, GPIO.LOW)
       GPIO.output(ledPin2, GPIO.LOW)
       GPIO.output(ledPin3, GPIO.LOW)
-
-try:
-  main_loop()
 except Exception, e:
+  print(e)
   printer.println(str(e))
