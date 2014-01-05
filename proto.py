@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 from __future__ import print_function
-import subprocess, time, Image, socket, imp, os
+import subprocess, time, Image, socket, imp, os, sys
+import random
 import RPi.GPIO as GPIO
 from random import randint
 Adafruit_Thermal = imp.load_source('Adafruit_Thermal', 'vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
@@ -18,42 +19,55 @@ nextInterval = 0.0   # Time of next recurring operation
 lastId       = '1'   # State information passed to/from interval script
 printer      = Adafruit_Thermal.Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
 
+def print_logo():
+  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
+
+def get_random_post(directory):
+  dir_path = os.path.join('posts', directory)
+  (_, _, filenames) = os.walk(dir_path).next()
+  path = os.path.join(dir_path, random.choice(filenames))
+
+  print('Post : ' + path)
+  with open(path) as f:
+    lines = f.readlines()
+
+  return lines
+
+
 
 # Called when button1 (au milieu) is briefly tapped.  Imprime les Tres tres court version 3 minutes.
 def tap():
-  GPIO.output(ledPin, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('ressources/logo-384.png'), True)
-  printer.feed(2)
-  a=randint(1,10)
-  s=str(a)
-  f=open("ttc3min/ttc3min_"+s+".txt", "r")
-  line=f.readline()
-  printer.doubleHeightOn()
-  printer.println(line)
-  printer.doubleHeightOff()
+  # print_logo()
+  # printer.feed(2)
+
+  lines = get_random_post('ttc3min')
+
+  # titre
+  printer.justify('C')
+  printer.setSize('L')
+  printer.println(lines[0])
+  printer.justify('L')
+  printer.setSize('S')
+
+  # printer.doubleHeightOn()
+  # printer.println(lines[0])
+  # printer.doubleHeightOff()
+
   time.sleep(2)
-  line=f.readline()
-  while line:
+  for line in lines[1:]:
     printer.println(line)
-    line=f.readline()
     time.sleep(2)
-  f.close()
-  time.sleep(3)
-  printer.feed(2)
-  printer.printImage(Image.open('ressources/logo-384.png'), True)
-  printer.feed(2)
-  printer.println("pour plus de lecture RDV sur    http://short-edition.com/")
+  
   printer.feed(4)
-  GPIO.output(ledPin, GPIO.LOW)
 
 # Called when button2 (gauche) is briefly tapped.  Imprime les Tres tres court version 1 minute.
 def tap2():
   GPIO.output(ledPin2, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('ressources/logo-384.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
   printer.feed(2)
   a=randint(1,7)
   s=str(a)
-  f=open("ttc1min/ttc1min_"+s+".txt", "r")
+  f=open("posts/ttc1min/ttc1min_"+s+".txt", "r")
   line=f.readline()
   printer.doubleHeightOn()
   printer.println(line)
@@ -65,20 +79,21 @@ def tap2():
     time.sleep(1)
   f.close()
   printer.feed(2)
-  printer.printImage(Image.open('ressources/logo-384.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
   printer.feed(2)
-  printer.println("pour plus de lecture RDV sur    http://short-edition.com/")
+  printer.println("pour plus de lecture RDV sur")
+  printer.println("http://short-edition.com")
   printer.feed(4)
   GPIO.output(ledPin2, GPIO.LOW)
 
 # Called when button3 is briefly tapped.  Imprime les poemes.
 def tap3():
   GPIO.output(ledPin3, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('ressources/logo-384.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
   printer.feed(2)
   a=randint(1,6)
   s=str(a)
-  f=open("poemes/poeme_"+s+".txt", "r")
+  f=open("posts/poemes/poeme_"+s+".txt", "r")
   line=f.readline()
   printer.doubleHeightOn()
   printer.println(line)
@@ -91,9 +106,10 @@ def tap3():
   f.close()
   printer.feed(2)
   time.sleep(2)
-  printer.printImage(Image.open('ressources/logo-384.png'), True)
+  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
   printer.feed(2)
-  printer.println("pour plus de lecture RDV sur    http://short-edition.com/")
+  printer.println("pour plus de lecture RDV sur")
+  printer.println("http://short-edition.com")
   printer.feed(4)
   GPIO.output(ledPin3, GPIO.LOW)
 
@@ -146,6 +162,8 @@ holdEnable      = False
 holdEnable2     = False
 holdEnable3     = False
 
+print("Entering main loop")
+
 # Main loop
 while(True):
 
@@ -153,7 +171,7 @@ while(True):
   buttonState = GPIO.input(buttonPin)
   buttonState2 = GPIO.input(buttonPin2)
   buttonState3 = GPIO.input(buttonPin3)
-  t           = time.time()
+  t = time.time()
 
   # Has button1 state changed?
   if buttonState != prevButtonState:
@@ -234,4 +252,3 @@ while(True):
     GPIO.output(ledPin3, GPIO.HIGH)
   else:
     GPIO.output(ledPin3, GPIO.LOW)
-
