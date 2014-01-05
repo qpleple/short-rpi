@@ -1,43 +1,40 @@
 # -*- coding: utf-8 -*-
+
 from AbstractDevice import AbstractDevice
 
 import sys, tty, termios
-from termcolor import colored
-
-def get_char():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+from termcolor import colored, cprint
 
 class SimulatorDevice(AbstractDevice):
+    key_map = {
+        'a': 'left', 'z': 'middle', 'e': 'right',
+        'A': 'LEFT', 'Z': 'MIDDLE', 'E': 'RIGHT',
+    }
+
+    def read_char(self):
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
+
     def read(self):
         while True:
-            c = get_char()
-            if c == 'a':
-                print "Btn: left"
-                return 'left'
-            elif c == 'z':
-                print "Btn: middle"
-                return 'middle'
-            elif c == 'e':
-                print "Btn: right"
-                return 'right'
-            elif c == 'A':
-                print "Btn: LEFT"
-                return 'LEFT'
-            elif c == 'Z':
-                print "Btn: MIDDLE"
-                return 'MIDDLE'
-            elif c == 'E':
-                print "Btn: RIGHT"
-                return 'RIGHT'
+            c = self.read_char()
+            if c in self.key_map:
+                print "Btn:", self.key_map[c]
+                return self.key_map[c]
             elif ord(c) == 3:
                 raise Exception('User interrupted')
+
+    def print_text(self, text):
+        cprint(text, 'yellow')
+
+    def print_image(self, image):
+        print "Image:", image
 
     def led_on(self, led):
         print "Led:", led.upper()

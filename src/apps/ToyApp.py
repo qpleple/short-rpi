@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from AbstractApp import AbstractApp
 from termcolor import colored, cprint
 
