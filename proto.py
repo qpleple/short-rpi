@@ -6,6 +6,62 @@ import subprocess, time, Image, socket, imp, os, sys
 import random
 import RPi.GPIO as GPIO
 from random import randint
+
+
+
+class AbstractDevice():
+
+  def run():
+    pass
+
+  def println(line):
+    pass
+
+
+class PhysicalDevice(AbstractDevice):
+  pass
+
+class SimulatorDevice(AbstractDevice):
+  pass
+
+    
+class AbstractApp():
+
+  def __init__(self, device):
+    self.device = device
+    self.device.setCode(self)
+    self.device.run()
+
+  def tap_left_btn():
+    pass
+
+  def tap_middle_btn():
+    pass
+
+  def tap_right_btn():
+    pass
+
+  def hold_left_btn():
+    pass
+
+  def hold_middle_btn():
+    pass
+
+  def hold_right_btn():
+    pass
+
+
+class CafApp(AbstractApp):
+  pass
+
+
+# device = SimulatorDevice()
+# app = CafApp(device)
+# app.run()
+
+
+
+
 Adafruit_Thermal = imp.load_source('Adafruit_Thermal', 'vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
 
 ledPin       = 18
