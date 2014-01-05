@@ -33,14 +33,11 @@ def get_random_post(directory):
 
   return lines
 
-
-
-# Called when button1 (au milieu) is briefly tapped.  Imprime les Tres tres court version 3 minutes.
-def tap():
+def print_random_post(directory):
   # print_logo()
   # printer.feed(2)
 
-  lines = get_random_post('ttc3min')
+  lines = get_random_post(directory)
 
   # titre
   printer.justify('C')
@@ -60,57 +57,22 @@ def tap():
   
   printer.feed(4)
 
+# Called when button1 (au milieu) is briefly tapped.  Imprime les Tres tres court version 3 minutes.
+def tap():
+  GPIO.output(ledPin, GPIO.HIGH)
+  print_random_post('ttc3min')
+  GPIO.output(ledPin, GPIO.LOW)
+
 # Called when button2 (gauche) is briefly tapped.  Imprime les Tres tres court version 1 minute.
 def tap2():
-  GPIO.output(ledPin2, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
-  printer.feed(2)
-  a=randint(1,7)
-  s=str(a)
-  f=open("posts/ttc1min/ttc1min_"+s+".txt", "r")
-  line=f.readline()
-  printer.doubleHeightOn()
-  printer.println(line)
-  printer.doubleHeightOff()
-  line=f.readline()
-  while line:
-    printer.println(line)
-    line=f.readline()
-    time.sleep(1)
-  f.close()
-  printer.feed(2)
-  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
-  printer.feed(2)
-  printer.println("pour plus de lecture RDV sur")
-  printer.println("http://short-edition.com")
-  printer.feed(4)
+  GPIO.output(ledPin2, GPIO.HIGH)
+  print_random_post('ttc1min')
   GPIO.output(ledPin2, GPIO.LOW)
 
 # Called when button3 is briefly tapped.  Imprime les poemes.
 def tap3():
-  GPIO.output(ledPin3, GPIO.HIGH)  # LED on while working
-  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
-  printer.feed(2)
-  a=randint(1,6)
-  s=str(a)
-  f=open("posts/poemes/poeme_"+s+".txt", "r")
-  line=f.readline()
-  printer.doubleHeightOn()
-  printer.println(line)
-  printer.doubleHeightOff()
-  line=f.readline()
-  while line:
-    printer.println(line)
-    line=f.readline()
-    time.sleep(0.1)
-  f.close()
-  printer.feed(2)
-  time.sleep(2)
-  printer.printImage(Image.open('ressources/logo-384.bmp'), True)
-  printer.feed(2)
-  printer.println("pour plus de lecture RDV sur")
-  printer.println("http://short-edition.com")
-  printer.feed(4)
+  GPIO.output(ledPin3, GPIO.HIGH)
+  print_random_post('poemes')
   GPIO.output(ledPin3, GPIO.LOW)
 
 # Called when button is held down.  Prints image, invokes shutdown process.
@@ -118,7 +80,8 @@ def hold():
   GPIO.output(ledPin, GPIO.HIGH)
   GPIO.output(ledPin2, GPIO.HIGH)
   GPIO.output(ledPin3, GPIO.HIGH)
-  printer.printImage(Image.open('gfx/goodbye.png'), True)
+  printer.println("Ok !")
+  printer.println("Laisse moi 30sec pour m'éteindre")
   printer.feed(3)
   subprocess.call("sync")
   subprocess.call(["shutdown", "-h", "now"])
@@ -162,93 +125,92 @@ holdEnable      = False
 holdEnable2     = False
 holdEnable3     = False
 
-print("Entering main loop")
 
-# Main loop
-while(True):
+def main_loop():
+  print("Entering main loop")
 
-  # Poll current buttons states and time
-  buttonState = GPIO.input(buttonPin)
-  buttonState2 = GPIO.input(buttonPin2)
-  buttonState3 = GPIO.input(buttonPin3)
-  t = time.time()
+  # Main loop
+  while(True):
 
-  # Has button1 state changed?
-  if buttonState != prevButtonState:
-    prevButtonState = buttonState   
-    prevTime        = t
-  else:                            
-    if (t - prevTime) >= holdTime: 
-      if holdEnable == True:        
-        hold()                      
-        holdEnable = False          
-        tapEnable  = False          
-    elif (t - prevTime) >= tapTime: 
-      if buttonState == True:      
-        if tapEnable == True:       
-          tap()                     
-          tapEnable  = False        
-          holdEnable = False
-      else:                         
-        tapEnable  = True           
-        holdEnable = True
+    # Poll current buttons states and time
+    buttonState = GPIO.input(buttonPin)
+    buttonState2 = GPIO.input(buttonPin2)
+    buttonState3 = GPIO.input(buttonPin3)
+    t = time.time()
 
-  # LED blinks while idle, for a brief interval every 2 seconds.
-  if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
-    GPIO.output(ledPin, GPIO.HIGH)
-  else:
-    GPIO.output(ledPin, GPIO.LOW)
+    # Has button1 state changed?
+    if buttonState != prevButtonState:
+      prevButtonState = buttonState   
+      prevTime        = t
+    else:                            
+      if (t - prevTime) >= holdTime: 
+        if holdEnable == True:        
+          hold()                      
+          holdEnable = False          
+          tapEnable  = False          
+      elif (t - prevTime) >= tapTime: 
+        if buttonState == True:      
+          if tapEnable == True:       
+            tap()                     
+            tapEnable  = False        
+            holdEnable = False
+        else:                         
+          tapEnable  = True           
+          holdEnable = True
 
-  # Has button2 state changed?
-  if buttonState2 != prevButtonState2:
-    prevButtonState2 = buttonState2   # Yes, save new state/time
-    prevTime2        = t
-  else:                             # Button state unchanged
-    if (t - prevTime2) >= holdTime:  # Button held more than 'holdTime'?
-      # Yes it has.  Is the hold action as-yet untriggered?
-      if holdEnable2 == True:        # Yep!
-        hold()                      # Perform hold action (usu. shutdown)
-        holdEnable2 = False          # 1 shot...don't repeat hold action
-        tapEnable2  = False          # Don't do tap action on release
-    elif (t - prevTime) >= tapTime: # Not holdTime.  tapTime elapsed?
-      # Yes.  Debounced press or release...
-      if buttonState2 == True:       # Button released?
-        if tapEnable2 == True:       # Ignore if prior hold()
-          tap2()                     # Tap triggered (button released)
-          tapEnable2  = False        # Disable tap and hold
-          holdEnable2 = False
-      else:                         # Button pressed
-        tapEnable2  = True           # Enable tap and hold actions
-        holdEnable2 = True
+    # Has button2 state changed?
+    if buttonState2 != prevButtonState2:
+      prevButtonState2 = buttonState2   # Yes, save new state/time
+      prevTime2        = t
+    else:                             # Button state unchanged
+      if (t - prevTime2) >= holdTime:  # Button held more than 'holdTime'?
+        # Yes it has.  Is the hold action as-yet untriggered?
+        if holdEnable2 == True:        # Yep!
+          hold()                      # Perform hold action (usu. shutdown)
+          holdEnable2 = False          # 1 shot...don't repeat hold action
+          tapEnable2  = False          # Don't do tap action on release
+      elif (t - prevTime) >= tapTime: # Not holdTime.  tapTime elapsed?
+        # Yes.  Debounced press or release...
+        if buttonState2 == True:       # Button released?
+          if tapEnable2 == True:       # Ignore if prior hold()
+            tap2()                     # Tap triggered (button released)
+            tapEnable2  = False        # Disable tap and hold
+            holdEnable2 = False
+        else:                         # Button pressed
+          tapEnable2  = True           # Enable tap and hold actions
+          holdEnable2 = True
+    
+    # Has button3 state changed?
+    if buttonState3 != prevButtonState3:
+      prevButtonState3 = buttonState3  
+      prevTime3        = t
+    else:                            
+      if (t - prevTime3) >= holdTime: 
+        if holdEnable3 == True:       
+          hold()                     
+          holdEnable3 = False          
+          tapEnable3  = False         
+      elif (t - prevTime) >= tapTime: 
+        if buttonState3 == True:      
+          if tapEnable3 == True:   
+            tap3()                     
+            tapEnable3  = False 
+            holdEnable3 = False
+        else:         
+          tapEnable3  = True   
+          holdEnable3 = True
 
-  # LED blinks while idle, for a brief interval every 2 seconds.
-  if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
-    GPIO.output(ledPin2, GPIO.HIGH)
-  else:
-    GPIO.output(ledPin2, GPIO.LOW)
-  
-  # Has button3 state changed?
-  if buttonState3 != prevButtonState3:
-    prevButtonState3 = buttonState3  
-    prevTime3        = t
-  else:                            
-    if (t - prevTime3) >= holdTime: 
-      if holdEnable3 == True:       
-        hold()                     
-        holdEnable3 = False          
-        tapEnable3  = False         
-    elif (t - prevTime) >= tapTime: 
-      if buttonState3 == True:      
-        if tapEnable3 == True:   
-          tap3()                     
-          tapEnable3  = False 
-          holdEnable3 = False
-      else:         
-        tapEnable3  = True   
-        holdEnable3 = True
+    # LED blinks while idle, for a brief interval every 2 seconds.
+    if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
+      GPIO.output(ledPin, GPIO.HIGH)
+      GPIO.output(ledPin2, GPIO.HIGH)
+      GPIO.output(ledPin3, GPIO.HIGH)
+    else:
+      GPIO.output(ledPin, GPIO.LOW)
+      GPIO.output(ledPin2, GPIO.LOW)
+      GPIO.output(ledPin3, GPIO.LOW)
 
-  # LED blinks while idle, for a brief interval every 2 seconds.
-  if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
-    GPIO.output(ledPin3, GPIO.HIGH)
-  else:
-    GPIO.output(ledPin3, GPIO.LOW)
+try:
+  main_loop()
+except Exception, e:
+  printer.println(str(e))
