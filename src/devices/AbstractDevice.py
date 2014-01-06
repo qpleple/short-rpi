@@ -3,6 +3,8 @@
 import re, sys
 
 class AbstractDevice():
+    font = 'default'
+
     def read(self):
         """
         waits for an action and returns 'left', 'middle' or 'right'
@@ -23,17 +25,26 @@ class AbstractDevice():
     def println(self, line=''):
         print "println() not implemented"
 
+    def set_font(self, font):
+        print "set_font() not implemented"
+
+    def get_line_length(self):
+        return 32 if self.font == 'default' else 42
+
     def feed(self, n):
         for _ in range(n):
             self.println()
 
-    def print_text(self, text):
-        paragraphs = self.word_wrap(text)
+    def print_text(self, text, justified=False):
+        line_length = self.get_line_length()
+        paragraphs = self.word_wrap(text, line_length)
         for paragraph in paragraphs:
-            for line in paragraph:
+            for i, line in enumerate(paragraph):
+                if justified and i+1 < len(paragraph):
+                    line = self.justify_line(line, line_length)
                 self.println(line)
 
-    def word_wrap(self, text, line_length=32):
+    def word_wrap(self, text, line_length):
         output = []
         paragraphs = text.splitlines()
         for paragraph in paragraphs:

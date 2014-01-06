@@ -31,13 +31,21 @@ class SimulatorDevice(AbstractDevice):
                 raise Exception('User interrupted')
 
     def println(self, line=''):
-        print '| {:<32} |'.format(line)
+        template =  u'| {:<' + unicode(self.get_line_length()) + u'} |'
+        print template.format(line).encode('utf-8')
 
     def print_image(self, image):
-        self.println('{:^32}'.format('[' + str(image) + ']'))
+        template =  u'{:^' + unicode(self.get_line_length()) + u'}'
+        self.println(template.format('[' + str(image) + ']'))
 
     def led_on(self, led):
         cprint("Led: " + led.upper(), 'yellow')
 
     def led_off(self, led):
         cprint("Led: " + led.lower(), 'yellow')
+
+    def set_font(self, font):
+        if not font in ['default', 'fontb']:
+            raise Exception('Unknown font: ' + font)
+        
+        self.font = font

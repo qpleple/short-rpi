@@ -7,13 +7,16 @@ from AbstractDevice import AbstractDevice
 Adafruit_Thermal = imp.load_source('Adafruit_Thermal', '../vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
 
 class PhysicalDevice(AbstractDevice):
-    holdTime     = 2     # Duration for button hold
-    tapTime      = 0.01  # Debounce time for button taps
+    holdTime = 2     # Duration for button hold
+    tapTime = 0.01  # Debounce time for button taps
+    heatTime = 60
 
     def __init__(self):
         self.leds = {'left': 24, 'middle': 18, 'right': 17}
         self.buttons = {'left': 25, 'middle': 23, 'right': 22}
         self.printer = Adafruit_Thermal.Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
+        # set heat time to 150
+        self.printer.begin(self.heatTime)
 
         GPIO.setmode(GPIO.BCM)
 
@@ -62,6 +65,17 @@ class PhysicalDevice(AbstractDevice):
                 self.led_off('middle')
                 self.led_off('right')
     
+    def set_font(self, font):
+        if font == 'default':
+            self.printer.writeBytes(0x1B, 0x21, 0x0)
+            self.printer.setLineHeight(32)
+        elif font == 'fontb':
+            self.printer.writeBytes(0x1B, 0x21, 0x1)
+            self.printer.setLineHeight(28)
+        else:
+            raise Exception('Unknown font: ' + font)
+        
+        self.font = font
 
     def btn_state(self, button):
         return 'released' if GPIO.input(self.buttons[button]) else 'pressed'
@@ -73,11 +87,14 @@ class PhysicalDevice(AbstractDevice):
         GPIO.output(self.leds[led], GPIO.LOW)
 
     def println(self, line=''):
-        self.printer.println(line)
+        self.printer.println(line.encode('cp437', 'replace'))
 
     def print_image(self, path):
         print "Printing image", path
         image = Image.open(path)
         if not image:
             print "no image found"
+
+        self.printer.begin(150)
         self.printer.printImage(image, True)
+        self.printer.begin(self.heatTime)

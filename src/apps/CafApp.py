@@ -14,11 +14,12 @@ class CafApp(AbstractApp):
         with codecs.open(path, encoding='utf-8') as f:
             text = f.read()
 
-        self.device.feed(1)
         self.device.print_image('../ressources/img/logo-384.bmp')
         self.device.feed(1)
-        self.device.print_text(text)
-        self.device.feed(2)
+        self.device.set_font('fontb')
+        self.device.print_text(text, justified=False)
+        self.device.set_font('default')
+        self.device.feed(3)
 
     def shutdown(self):
         self.device.led_off('left')
@@ -28,8 +29,8 @@ class CafApp(AbstractApp):
         self.device.print_text("Ok !\nLaisse moi 30sec pour m'éteindre")
         self.device.feed(2)
 
-        # subprocess.call("sync")
-        # subprocess.call(["shutdown", "-h", "now"])
+        subprocess.call("sync")
+        subprocess.call(["shutdown", "-h", "now"])
 
     def main_loop(self):
         while True:
@@ -59,3 +60,4 @@ class CafApp(AbstractApp):
             self.device.feed(1)
             self.device.println("I'm done.")
             self.device.feed(3)
+
