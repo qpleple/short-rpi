@@ -8,7 +8,9 @@ class ToyApp(AbstractApp):
   def run(self):
     while True:
         action = self.device.read()
-        print action
+        cprint("action = " + action, 'green')
+
+    # while True:    
         # if action == 'right':
         #     self.device.led_on('right')
         # elif action == 'RIGHT':

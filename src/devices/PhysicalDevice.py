@@ -3,7 +3,6 @@
 import time, Image, imp
 import RPi.GPIO as GPIO
 from AbstractDevice import AbstractDevice
-from __future__ import print_function
 
 Adafruit_Thermal = imp.load_source('Adafruit_Thermal', '../vendors/Python-Thermal-Printer/Adafruit_Thermal.py')
 
@@ -31,56 +30,55 @@ class PhysicalDevice(AbstractDevice):
         prevTime, prevState, pressed = {}, {}, {}
 
         for button, pin in self.buttons.items():
-            prevState[button] = GPIO.input(pint)
+            prevState[button] = GPIO.input(pin)
+            print "Initial state", button, ":", prevState[button]
             prevTime[button] = time.time()
-            tap[button] = False
-            hold[button] = False
-
-        # Main loop
+            pressed[button] = False
+        
+        print "entering main loop"
         while(True):
             for button, pin in self.buttons.items():
-                # Poll current buttons states and time
+                # Record change of state
                 state = GPIO.input(pin)
                 t = time.time()
-
-                # Has button1 state changed?
                 if state != prevState[button]:
-                    # Yes, save new state/time
+                    print button, ": state = ", prevState[button], "->", state
                     prevState[button] = state
                     prevTime[button] = t
-                else:
-                    # Button state unchanged
-                    # Button held more than 'holdTime'?
-                    if hold[button] and (t - prevTime[button]) >= holdTime:
-                        # Yep!
-                        # Send back hold action for this button
-                        return button.upper()
+                    
+                
+                # Button held more than 'holdTime'?
+                if (t - prevTime[button]) >= self.holdTime:
+                    if pressed[button]:
                         # don't repeat action
                         pressed[button] = False
-                    # Not holdTime.  tapTime elapsed?
-                    elif (t - prevTime) >= tapTime:
-                        # Yes.  Debounced press or release...
-                        # Button released?
-                        if state and pressed[button]:
+                        # Send back hold action for this button
+                        return button.upper()
+                # Not holdTime.  tapTime elapsed?
+                elif (t - prevTime[button]) >= self.tapTime:
+                    # Yes.  Debounced press or release...
+                    # Button released?
+                    if state:
+                        if pressed[button]:
+                            # don't repeat action
+                            pressed[button] = False
                             # Tap triggered (button released)
                             # Send tapped hold action for this button
                             return button
-                            # don't repeat action
-                            pressed[button] = False
-                        else:
-                            # Button pressed
-                            # Enable tap and hold actions
-                            pressed[button] = True
+                    else:
+                        # Button pressed
+                        # Enable tap and hold actions
+                        pressed[button] = True
 
             # LED blinks while idle, for a brief interval every 2 seconds.
-            if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
-                self.led_on('left')
-                self.led_on('middle')
-                self.led_on('right')
-            else:
-                self.led_off('left')
-                self.led_off('middle')
-                self.led_off('right')
+            # if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
+            #     self.led_on('left')
+            #     self.led_on('middle')
+            #     self.led_on('right')
+            # else:
+            #     self.led_off('left')
+            #     self.led_off('middle')
+            #     self.led_off('right')
 
     def led_on(self, led):
         print "LED", led, "on"
@@ -91,7 +89,7 @@ class PhysicalDevice(AbstractDevice):
         GPIO.output(self.leds[led], GPIO.HIGH)
 
     def println(self, line=''):
-        print "println() not implemented"
+        self.printer.println(line)
 
     def print_text(self, txt):
         print "print_text() not implemented"
@@ -102,6 +100,3 @@ class PhysicalDevice(AbstractDevice):
         if not image:
             print "no image found"
         self.printer.printImage(image, True)
-
-    def feed(self, n):
-        print "feed() not implemented"
