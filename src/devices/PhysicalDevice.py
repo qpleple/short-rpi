@@ -29,70 +29,51 @@ class PhysicalDevice(AbstractDevice):
         # Poll initial button state and time
         prevTime, prevState, pressed = {}, {}, {}
 
+        states = {}
         for button, pin in self.buttons.items():
-            prevState[button] = GPIO.input(pin)
-            print "Initial state", button, ":", prevState[button]
-            prevTime[button] = time.time()
-            pressed[button] = False
-        
-        print "entering main loop"
+            prevState[button] = self.btn_state(button)
+            states[button] = []
+            print "initial state", button, ":", prevState[button]
+            
+        print "entering main loop..."
         while(True):
             for button, pin in self.buttons.items():
-                # Record change of state
-                state = GPIO.input(pin)
+                state = self.btn_state(button)
                 t = time.time()
-                if state != prevState[button]:
-                    print button, ": state = ", prevState[button], "->", state
-                    prevState[button] = state
-                    prevTime[button] = t
-                    
-                
-                # Button held more than 'holdTime'?
-                if (t - prevTime[button]) >= self.holdTime:
-                    if pressed[button]:
-                        # don't repeat action
-                        pressed[button] = False
-                        # Send back hold action for this button
-                        return button.upper()
-                # Not holdTime.  tapTime elapsed?
-                elif (t - prevTime[button]) >= self.tapTime:
-                    # Yes.  Debounced press or release...
-                    # Button released?
-                    if state:
-                        if pressed[button]:
-                            # don't repeat action
-                            pressed[button] = False
-                            # Tap triggered (button released)
-                            # Send tapped hold action for this button
-                            return button
-                    else:
-                        # Button pressed
-                        # Enable tap and hold actions
-                        pressed[button] = True
 
-            # LED blinks while idle, for a brief interval every 2 seconds.
-            # if ((int(t) & 1) == 0) and ((t - int(t)) < 0.15):
-            #     self.led_on('left')
-            #     self.led_on('middle')
-            #     self.led_on('right')
-            # else:
-            #     self.led_off('left')
-            #     self.led_off('middle')
-            #     self.led_off('right')
+                if state != prevState[button]:
+                    prevState[button] = state
+                    states[button].append({'state': state, 'time': t})
+
+                    # second change of state to 'released' before holdTime timeout: it's a tap!
+                    if len(states[button]) >= 2 and states[button][-1]['state'] == 'released':
+                        return button
+
+                # state 'pressed' held during holdTime, it's a hold!
+                if state == 'pressed' and len(states[button]) >= 1 and t - states[button][-1]['time'] > self.holdTime:
+                    return button.upper()
+
+            if t - int(t) < 0.25 :
+                self.led_on('left')
+                self.led_on('middle')
+                self.led_on('right')
+            else:
+                self.led_off('left')
+                self.led_off('middle')
+                self.led_off('right')
+    
+
+    def btn_state(self, button):
+        return 'released' if GPIO.input(self.buttons[button]) else 'pressed'
 
     def led_on(self, led):
-        print "LED", led, "on"
         GPIO.output(self.leds[led], GPIO.HIGH)
 
     def led_off(self, led):
-        print "LED", led, "off"
-        GPIO.output(self.leds[led], GPIO.HIGH)
+        GPIO.output(self.leds[led], GPIO.LOW)
 
     def println(self, line=''):
         self.printer.println(line)
-
-    def print_text(self, txt):
-        print "print_text() not implemented"
 
     def print_image(self, path):
         print "Printing image", path
