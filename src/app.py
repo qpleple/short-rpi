@@ -6,7 +6,7 @@ from apps.ToyApp import ToyApp
 # device = SimulatorDevice()
 device = PhysicalDevice()
 
-# app = CafApp(device)
-app = ToyApp(device)
+app = CafApp(device)
+# app = ToyApp(device)
 
 app.run()

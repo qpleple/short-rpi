@@ -13,7 +13,7 @@ class CafApp(AbstractApp):
             text = f.read()
 
         self.device.feed(1)
-        self.device.print_image('../resources/logo-384.bmp')
+        self.device.print_image('../ressources/logo-384.bmp')
         self.device.feed(1)
         self.device.print_text(text)
         self.device.feed(2)
@@ -26,8 +26,8 @@ class CafApp(AbstractApp):
         self.device.print_text("Ok !\nLaisse moi 30sec pour m'éteindre")
         self.device.feed(2)
 
-        subprocess.call("sync")
-        subprocess.call(["shutdown", "-h", "now"])
+        # subprocess.call("sync")
+        # subprocess.call(["shutdown", "-h", "now"])
 
     def main_loop(self):
         while True:
