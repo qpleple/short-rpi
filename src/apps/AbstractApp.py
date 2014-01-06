@@ -6,3 +6,4 @@ class AbstractApp():
 
   def run(self):
     print "run() not implemented"
+

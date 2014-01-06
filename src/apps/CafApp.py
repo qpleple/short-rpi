@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 
-import os, random, subprocess
+import os, random, subprocess, codecs
 from AbstractApp import AbstractApp
 
 class CafApp(AbstractApp):
     def print_random_post(self, directory):
-        dir_path = os.path.join('../posts', directory)
+        dir_path = os.path.join('../ressources/posts', directory)
         (_, _, filenames) = os.walk(dir_path).next()
-        path = os.path.join(dir_path, random.choice(filenames))
+        filename = random.choice(filenames)
+        filename = '2.txt'
+        path = os.path.join(dir_path, filename)
         
-        with open(path) as f:
+        with codecs.open(path, encoding='utf-8') as f:
             text = f.read()
 
         self.device.feed(1)
-        self.device.print_image('../ressources/logo-384.bmp')
+        self.device.print_image('../ressources/img/logo-384.bmp')
         self.device.feed(1)
         self.device.print_text(text)
         self.device.feed(2)

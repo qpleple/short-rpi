@@ -31,7 +31,7 @@ class SimulatorDevice(AbstractDevice):
                 raise Exception('User interrupted')
 
     def println(self, line=''):
-        print '| {:<32} |'.format(line[:32])
+        print '| {:<32} |'.format(line)
 
     def print_image(self, image):
         self.println('{:^32}'.format('[' + str(image) + ']'))

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import re
+import re, sys
 
 class AbstractDevice():
     def read(self):
@@ -41,10 +41,11 @@ class AbstractDevice():
             line = ''
             words = re.split("\s+", paragraph)
             for word in words:
-                if len(word) + len(line) > line_length:
+                if len(word) + 1 + len(line) > line_length:
                     lines.append(line)
                     line = ''
                 line += (' ' if line else '') + word
+
             lines.append(line)
             output.append(lines)
 
