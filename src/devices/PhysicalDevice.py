@@ -98,3 +98,6 @@ class PhysicalDevice(AbstractDevice):
         self.printer.begin(150)
         self.printer.printImage(image, True)
         self.printer.begin(self.heatTime)
+
+    def set_timeout(self, x):
+        self.printer.timeoutSet(x)

@@ -2,7 +2,7 @@
 
 from AbstractDevice import AbstractDevice
 
-import sys, tty, termios
+import sys, tty, termios, time
 from termcolor import colored, cprint
 
 class SimulatorDevice(AbstractDevice):
@@ -31,7 +31,7 @@ class SimulatorDevice(AbstractDevice):
                 raise Exception('User interrupted')
 
     def println(self, line=''):
-        template =  u'| {:<' + unicode(self.get_line_length()) + u'} |'
+        template =  u'{:<' + unicode(self.get_line_length()) + u'}'
         print template.format(line).encode('utf-8')
 
     def print_image(self, image):
@@ -49,3 +49,6 @@ class SimulatorDevice(AbstractDevice):
             raise Exception('Unknown font: ' + font)
         
         self.font = font
+
+    def set_timeout(self, x):
+        time.sleep(x)

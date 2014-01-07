@@ -28,6 +28,9 @@ class AbstractDevice():
     def set_font(self, font):
         print "set_font() not implemented"
 
+    def set_timeout(self, x):
+        print "set_timeout() not implemented"
+
     def get_line_length(self):
         return 32 if self.font == 'default' else 42
 
@@ -36,13 +39,28 @@ class AbstractDevice():
             self.println()
 
     def print_text(self, text, justified=False):
+        lines = []
         line_length = self.get_line_length()
         paragraphs = self.word_wrap(text, line_length)
         for paragraph in paragraphs:
             for i, line in enumerate(paragraph):
                 if justified and i+1 < len(paragraph):
                     line = self.justify_line(line, line_length)
-                self.println(line)
+                lines.append(line)
+
+        # print lines by batch of 50 and wait 10sec b/w each batch
+        n = len(lines)
+        for i in range(n // 50):
+            start = 50 * i
+            big_line = '\n'.join(lines[start:start+50])
+            self.println(big_line)
+
+            # wait only if it's not the last iteration
+            if i+1 < n // 50:
+                self.set_timeout(10)
+
+        self.println('\n'.join(lines[start+50:]))
+
 
     def word_wrap(self, text, line_length):
         output = []
