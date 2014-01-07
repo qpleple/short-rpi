@@ -38,6 +38,9 @@ class AbstractDevice():
         for _ in range(n):
             self.println()
 
+    def chunks(self, array, chunk_size):
+        return [array[i:i+chunk_size] for i in range(0, len(array), chunk_size)]
+
     def print_text(self, text, justified=False):
         lines = []
         line_length = self.get_line_length()
@@ -49,18 +52,13 @@ class AbstractDevice():
                 lines.append(line)
 
         # print lines by batch of 50 and wait 10sec b/w each batch
-        n = len(lines)
-        for i in range(n // 50):
-            start = 50 * i
-            big_line = '\n'.join(lines[start:start+50])
-            self.println(big_line)
+        chunks = self.chunks(lines, 50)
+        for i, chunk in enumerate(chunks):
+            self.println('\n'.join(chunk))
 
             # wait only if it's not the last iteration
-            if i+1 < n // 50:
+            if i+1 < len(chunks):
                 self.set_timeout(10)
-
-        self.println('\n'.join(lines[start+50:]))
-
 
     def word_wrap(self, text, line_length):
         output = []
