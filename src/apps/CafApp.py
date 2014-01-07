@@ -8,7 +8,6 @@ class CafApp(AbstractApp):
         dir_path = os.path.join('../ressources/posts', directory)
         (_, _, filenames) = os.walk(dir_path).next()
         filename = random.choice(filenames)
-        filename = '2.txt'
         path = os.path.join(dir_path, filename)
         
         with codecs.open(path, encoding='utf-8') as f:
