@@ -27,7 +27,7 @@ class CafApp(AbstractApp):
         self.device.led_off('right')
         
         self.device.print_text(u"Ok !\nLaisse moi 30sec pour m'éteindre")
-        self.device.feed(2)
+        self.device.feed(4)
 
         subprocess.call("sync")
         subprocess.call(["shutdown", "-h", "now"])
