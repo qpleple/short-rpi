@@ -16,9 +16,7 @@ class CafApp(AbstractApp):
 
         self.device.print_image('../ressources/img/logo-384.bmp')
         self.device.feed(1)
-        self.device.set_font('fontb')
-        self.device.print_text(text, justified=False)
-        self.device.set_font('default')
+        self.device.print_text(text)
         self.device.feed(3)
 
     def shutdown(self):
