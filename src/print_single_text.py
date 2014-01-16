@@ -4,10 +4,7 @@
 from devices.PhysicalDevice import PhysicalDevice
 device = PhysicalDevice()
 
-from apps.CafApp import CafApp
-app = CafApp(device)
-
-# from apps.ToyApp import ToyApp
-# app = ToyApp(device)
+from apps.PrintSingleTextApp import PrintSingleTextApp
+app = PrintSingleTextApp(device)
 
 app.run()
